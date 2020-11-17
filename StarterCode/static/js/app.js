@@ -1,68 +1,138 @@
 console.log('is this working ')
 
-// build the metadata panel first 
-function buildMetadata(){
-    d3.json('/data/samples.json').then(function(data){
-        // print out the meta data to make sure this is working
-        var metaData = data.metadata
-        console.log(metaData)
-        // select from the index the metadata, under the class "sample metadata"
-        var metaPanel = d3.select('#sample-metadata');
-        // clear the html 
-        metaPanel.html('');
-        // build a table with the values needed
-        Object.entries(data).forEach(([key, value]) => {
-            metaPanel.append('p').text(`${key}: ${value}`)
-        })
+//initialize the page to show the default data
+function init() {
 
+    // use d3 to select the dataset for the metadata panel
+    var dataSet = d3.select('#selDataset');
+
+    // pull json data and create a loop to print the ID name in the drop down selection 
+    d3.json('/data/samples.json').then((data) => {
+    var names = data.names;
+    console.log(names);
+    names.forEach((ID) => {
+        dataSet.append('option').text(ID);
     })
-}
+    
+    // filter data to get the samples by ID
+    var homeData = data.samples.filter(row => row.id)[0]
+    // console.log(homeData);
 
-buildMetadata();
+    // get the top 10 sample values
+    homeValues= homeData.sample_values.slice(0,10);
+    console.log(homeValues)
 
-// grab values from response json to build the plots
-function buildPlot(){
-    d3.json('/data/samples.json').then(function(data){
-        // console.log(data)
+    // get the top 10 IDs
+    homeIDs = homeData.otu_ids.slice(0,10).map(row => "OTU" + row);
+    console.log(homeIDs)
+
+    // get the labels for each of the IDs
+    homeLabels = homeData.otu_labels.slice(0,10)
+    console.log(homeLabels)
+
+     // create bar chart with the values 
+    var trace1 = {
+        x: homeValues,
+        y: homeIDs,
+        text: homeLabels,
+        orientation: 'h',
+        type: 'bar'
+
+    };
+
+    var data = [trace1]
+
+    Plotly.newPlot('bar', data);
+
+    // create the bubble chart 
+    var trace2 = {
+        type: 'bubble',
+        x: homeIDs,
+        y: homeValues, 
+        text: homeLabels, 
+        mode: 'markers',
+        marker: {
+            color: homeIDs,
+            size: homeValues 
+        }  
+    };
+
+    var data2 = [trace2]
+
+    Plotly.newPlot('bubble', data2)
+
+
+
+
+    
+// }
+
+
+// // build the metadata panel first 
+// function buildMetadata(){
+//     d3.json('/data/samples.json').then(function(data){
+//         // print out the meta data to make sure this is working
+//         var metaData = data.metadata
+//         console.log(metaData)
+//         // select from the index the metadata, under the class "sample metadata"
+//         var metaPanel = d3.select('#sample-metadata');
+//         // clear the html 
+//         metaPanel.html('');
+//         // build a table with the values needed
+//         Object.entries(data).forEach(([key, value]) => {
+//             metaPanel.append('p').text(`${key}: ${value}`)
+//         })
+
+//     })
+// }
+
+// buildMetadata();
+
+
+
+// // grab values from response json to build the plots
+// function buildPlot(){
+//     d3.json('/data/samples.json').then(function(data){
+//         // console.log(data)
         
-        // print out id names for each person
-        var name = data.names;
-        // console.log(name)
+//         // print out id names for each person
+//         var name = data.names;
+//         // console.log(name)
 
-        // print out the metadata information 
-        var metaData = data.metadata;
-        // console.log(metaData)
+//         // print out the metadata information 
+//         var metaData = data.metadata;
+//         // console.log(metaData)
 
-        // print out the sample information 
-        var sampleID = data.samples.otu_ids;
-        console.log(sampleID)
-        var sampleValues = data.samples[0].sample_values.sort((a,b) => b.sample_values - a.sample_values).slice(0,10)
-        // console.log(sampleValues)
-        var otuLabels = data.samples[0].otu_ids.slice(0,10).map(row => 'OTU'+ row)
-        console.log(otuLabels)
+//         // print out the sample information 
+//         var sampleID = data.samples.otu_ids;
+//         console.log(sampleID)
+//         var sampleValues = data.samples[0].sample_values.sort((a,b) => b.sample_values - a.sample_values).slice(0,10)
+//         // console.log(sampleValues)
+//         var otuLabels = data.samples[0].otu_ids.slice(0,10).map(row => 'OTU'+ row)
+//         console.log(otuLabels)
         
-        var trace1 = {
-            x: sampleValues.reverse(),
-            y: otuLabels,
-            type: "bar",
-            orientation: 'h'
-        }
+//         var trace1 = {
+//             x: sampleValues.reverse(),
+//             y: otuLabels,
+//             type: "bar",
+//             orientation: 'h'
+//         }
 
-        var data = [trace1]
+//         var data = [trace1]
 
-        var layout = {
-            title: `Sample Data of ${sampleID}`
-        }
+//         var layout = {
+//             title: `Sample Data of ${sampleID}`
+//         }
 
-        Plotly.newPlot('bar', data, layout);
+//         Plotly.newPlot('bar', data, layout);
 
-        var trace2 = {
-            x: otuLabels,
-            y: sampleValues
-        }
-    });
-}
-buildPlot()
+//         var trace2 = {
+//             x: otuLabels,
+//             y: sampleValues
+//         }
+//     });
+// }
+// buildPlot()
 // d3.json('/data/samples.json').then((data) => {
 //     var trace1 = {
 //         x: data.samples.otu_ids
@@ -281,3 +351,4 @@ buildPlot()
 //         var wfreq = data.metadata.map(row => row[6]);
 //     })
 // };
+init();
