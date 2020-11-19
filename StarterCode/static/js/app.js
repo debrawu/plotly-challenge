@@ -1,75 +1,296 @@
-console.log('is this working ')
+function buildMetadata(sample) {
+    d3.json('../data/samples.json').then(function(data){
 
-//initialize the page to show the default data
-function init() {
+        // print out the results for metadata
+        var metadata = data.metadata
+        // console.log(metadata)
 
-    // use d3 to select the dataset for the metadata panel
-    var dataSet = d3.select('#selDataset');
+        // filter results for each one
+        var selectID = metadata.filter(row => row.id == sample);
+        oneID = selectID[0]
 
-    // pull json data and create a loop to print the ID name in the drop down selection 
-    d3.json('/data/samples.json').then((data) => {
-    var names = data.names;
-    console.log(names);
-    names.forEach((ID) => {
-        dataSet.append('option').text(ID);
+        // select the metapanel from the Index Page 
+        var metapanel = d3.select('#sample-metadata');
+        metapanel.html('');
+
+        Object.entries(oneID).forEach(([key, value]) => {
+            console.log([key, value])
+            metapanel.append('p').text(`${key}: ${value}`)
+        });
     })
-    
-    // filter data to get the samples by ID
-    var homeData = data.samples.filter(row => row.id)[0]
-    // console.log(homeData);
+};
 
-    // get the top 10 sample values
-    homeValues= homeData.sample_values.slice(0,10);
-    console.log(homeValues)
 
-    // get the top 10 IDs
-    homeIDs = homeData.otu_ids.slice(0,10).map(row => "OTU" + row);
-    console.log(homeIDs)
 
-    // get the labels for each of the IDs
-    homeLabels = homeData.otu_labels.slice(0,10)
-    console.log(homeLabels)
+function buildCharts(sample) {
 
-     // create bar chart with the values 
-    var trace1 = {
-        x: homeValues,
-        y: homeIDs,
-        text: homeLabels,
-        orientation: 'h',
-        type: 'bar'
+  // Use `d3.json` to fetch the sample data for the plots
+  d3.json("../data/samples.json").then((data) => {
+    var samples= data.samples;
+    var results= samples.filter(d => d.id == sample);
+    var result= results[0]
 
-    };
+    var ids = result.otu_ids;
+    var labels = result.otu_labels;
+    var values = result.sample_values;
 
-    var data = [trace1]
 
-    Plotly.newPlot('bar', data);
+    // Build a Bubble Chart using the sample data
+    var LayoutBubble = {
+      margin: { t: 0 },
+      xaxis: { title: "Sample IDs" },
+      hovermode: "closest",
+      };
 
-    // create the bubble chart 
-    var trace2 = {
-        type: 'bubble',
-        x: homeIDs,
-        y: homeValues, 
-        text: homeLabels, 
-        mode: 'markers',
+      var DataBubble = [
+      {
+        x: ids,
+        y: values,
+        text: labels,
+        mode: "markers",
         marker: {
-            color: homeIDs,
-            size: homeValues 
-        }  
+          color: ids,
+          size: values,
+          }
+      }
+    ];
+
+    Plotly.plot("bubble", DataBubble, LayoutBubble);
+
+    //  Build a bar Chart
+    
+    var bar_data =[
+      {
+        y:ids.slice(0, 10).map(otuID => `OTU ${otuID}`).reverse(),
+        x:values.slice(0,10).reverse(),
+        text:labels.slice(0,10).reverse(),
+        type:"bar",
+        orientation:"h"
+
+      }
+    ];
+
+    var barLayout = {
+      title: "Top 10 Bacteria Cultures",
+      margin: { t: 30, l: 150 }
     };
 
-    var data2 = [trace2]
+    Plotly.newPlot("bar", bar_data, barLayout);
+  });
+}
+   
 
-    Plotly.newPlot('bubble', data2)
+
+function init() {
+  // Grab a reference to the dropdown select element
+  var selector = d3.select("#selDataset");
+
+  // function callback(somnething){
+  //   does something
+  // }
+  // Use the list of sample names to populate the select options
+  // .map(callback) -> .map(callback(one_element))
+  // .map(one_element -> function {one_element+1})
+  // .map(one_element=>one_element+1)
+
+  d3.json("samples.json").then((data) => {
+    var sampleNames = data.names;
+    //for (var i=0; i<sampleNames.length; i++){
+    //  select
+    //}
+    sampleNames.forEach((sample) => {
+      selector
+        .append("option")
+        .text(sample)
+        .property("value", sample);
+    });
+
+    // Use the first sample from the list to build the initial plots
+    const firstSample = sampleNames[0];
+    buildCharts(firstSample);
+    buildMetadata(firstSample);
+  });
+  // console.log(json_obj)
+}
+
+function optionChanged(newSample) {
+  // Fetch new data each time a new sample is selected
+  buildCharts(newSample);
+  buildMetadata(newSample);
+}
+
+// Initialize the dashboard
+init();
 
 
 
+// function buildPlot(sample){
+//     d3.json('../data/samples.json').then((data) => {
+//         // console.log(data)
+//         var names = data.names
+//         // console.log(names)
+//         var metadata = data.metadata
+//         // console.log(metadata)
+//         var samples = data.samples
+//         // console.log(samples)
+//         var sampleValues = samples[0].sample_values.slice(0,10)
+//         // console.log(sampleValues)
+//         // get the ids for each one
+//         var selectID = samples.filter(d => d.id == sample)
+//         console.log(selectID)
+//         var oneID = selectID[0]
+//         console.log(oneID)
 
-    
+//         var ids = oneID.otu_ids;
+//         console.log(ids)
+
+//         var labels = oneID.otu_labels;
+//         console.log(labels)
+
+//         var sampleValues = oneID.sample_values
+
+//     });
 // }
 
+// buildPlot(); 
 
-// // build the metadata panel first 
-// function buildMetadata(){
+// function createDropDown(){
+//     d3.json('../data/samples.json').then((data) => {
+
+//     // select the HTML selDataset to populate drop down selections
+//     var dropdown = d3.select('#selDataset')
+//     var ID = data.names
+
+//     // append ID names to dropdown selection
+//     ID.forEach(num => {
+//         dropdown.append('option')
+//         .text(num)
+//         .property('value', num)
+//     });
+//     })
+// }
+
+// // create option changed when ppl select new ID sample set
+// function optionChanged(selectNew) {
+//     console.log(selectNew)
+//     buildMetadata(selectNew)
+// }
+
+// createDropDown();
+
+
+//   var optionChanged = function(newValue) {
+  
+//     d3.json("../data/samples.json").then(function(data) {
+  
+//     sample_new = data["samples"].filter(function(sample) {
+  
+//         return sample.id == newValue;
+  
+//     });
+    
+//     metadata_new = data["metadata"].filter(function(metadata) {
+  
+//         return metadata.id == newValue;
+  
+//     });
+
+
+// function createDropDown () {
+//     d3.json('../data/samples.json').then((data) => {
+//         console.log(data)
+    
+
+//     // select the HTML selDataset to populate drop down selections
+//     var dropdown = d3.select('#selDataset')
+//     var ID = data.names
+
+//      // append ID names to the dropdown selection
+//      ID.forEach(num => {
+//         dropdown.append('option').text(num)
+//         })
+
+//     });
+// };
+   
+
+//     // create a function for option changed 
+//     d3.select('#selDataset').on('change', function(){
+//         var selectID = d3.select('#selDataset').node().value
+//         console.log(selectID)
+//     })
+//     optionChanged()
+
+// })
+
+// console.log('is this working ')
+
+// //initialize the page to show the default data
+// function getData(id){
+
+//     // use d3 to select the dataset for the metadata panel
+//     var dataSet = d3.select('#selDataset');
+
+//     // pull json data and create a loop to print the ID name in the drop down selection 
+//     d3.json('/data/samples.json').then((data) => {
+//     var names = data.names;
+//     console.log(names);
+//     names.forEach((ID) => {
+//         dataSet.append('option').text(ID);
+//     });
+    
+//     // filter data to get the samples by ID
+//     var homeData = data.samples.filter(row => row.id)[0]
+//     // console.log(homeData);
+
+//     // get the top 10 sample values
+//     homeValues= homeData.sample_values.slice(0,10);
+//     console.log(homeValues)
+
+//     // get the top 10 IDs
+//     homeIDs = homeData.otu_ids.slice(0,10).map(row => "OTU" + row);
+//     console.log(homeIDs)
+
+//     // get the labels for each of the IDs
+//     homeLabels = homeData.otu_labels.slice(0,10)
+//     console.log(homeLabels)
+
+//      // create bar chart with the values 
+//     var trace1 = {
+//         x: homeValues,
+//         y: homeIDs,
+//         text: homeLabels,
+//         orientation: 'h',
+//         type: 'bar'
+
+//     };
+
+//     var data = [trace1]
+
+//     Plotly.newPlot('bar', data);
+
+//     // create the bubble chart 
+//     var trace2 = {
+//         type: 'bubble',
+//         x: homeIDs,
+//         y: homeValues, 
+//         text: homeLabels, 
+//         mode: 'markers',
+//         marker: {
+//             color: homeIDs,
+//             size: homeValues 
+//         }  
+//     };
+
+//     var data2 = [trace2]
+
+//     Plotly.newPlot('bubble', data2)
+// })
+// getData(id);
+// };
+
+// // build the metadata panel
+// function buildMetadata(id){
 //     d3.json('/data/samples.json').then(function(data){
 //         // print out the meta data to make sure this is working
 //         var metaData = data.metadata
@@ -86,8 +307,13 @@ function init() {
 //     })
 // }
 
-// buildMetadata();
-
+// // create function when dropdown menu item is selected
+// function optionChanged(id) {
+//     // this will change the data plots for the bubble & bar chart
+//     getData(id);
+//     // this will change the metadata information panel 
+//     buildMetadata(id);
+// }
 
 
 // // grab values from response json to build the plots
@@ -351,4 +577,4 @@ function init() {
 //         var wfreq = data.metadata.map(row => row[6]);
 //     })
 // };
-init();
+// init();
