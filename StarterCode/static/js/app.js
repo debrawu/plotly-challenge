@@ -1,6 +1,8 @@
 function buildMetadata(sample) {
     d3.json('../data/samples.json').then(function(data){
 
+        console.log(data)
+
         // print out the results for metadata
         var metadata = data.metadata
         // console.log(metadata)
@@ -93,7 +95,7 @@ function init() {
   // .map(one_element -> function {one_element+1})
   // .map(one_element=>one_element+1)
 
-  d3.json("samples.json").then((data) => {
+  d3.json("../data/samples.json").then((data) => {
     var sampleNames = data.names;
     //for (var i=0; i<sampleNames.length; i++){
     //  select
