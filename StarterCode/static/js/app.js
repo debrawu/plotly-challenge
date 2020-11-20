@@ -1,5 +1,5 @@
 function buildMetadata(sample) {
-    d3.json('../data/samples.json').then(function(data){
+    d3.json('data/samples.json').then(function(data){
 
         console.log(data)
 
@@ -27,7 +27,7 @@ function buildMetadata(sample) {
 function buildCharts(sample) {
 
   // Use `d3.json` to fetch the sample data for the plots
-  d3.json("../data/samples.json").then((data) => {
+  d3.json("data/samples.json").then((data) => {
     var samples= data.samples;
     var results= samples.filter(d => d.id == sample);
     var result= results[0]
@@ -95,7 +95,7 @@ function init() {
   // .map(one_element -> function {one_element+1})
   // .map(one_element=>one_element+1)
 
-  d3.json("../data/samples.json").then((data) => {
+  d3.json("data/samples.json").then((data) => {
     var sampleNames = data.names;
     //for (var i=0; i<sampleNames.length; i++){
     //  select
@@ -127,7 +127,7 @@ init();
 
 
 // function buildPlot(sample){
-//     d3.json('../data/samples.json').then((data) => {
+//     d3.json('data/samples.json').then((data) => {
 //         // console.log(data)
 //         var names = data.names
 //         // console.log(names)
@@ -157,7 +157,7 @@ init();
 // buildPlot(); 
 
 // function createDropDown(){
-//     d3.json('../data/samples.json').then((data) => {
+//     d3.json('data/samples.json').then((data) => {
 
 //     // select the HTML selDataset to populate drop down selections
 //     var dropdown = d3.select('#selDataset')
@@ -183,7 +183,7 @@ init();
 
 //   var optionChanged = function(newValue) {
   
-//     d3.json("../data/samples.json").then(function(data) {
+//     d3.json("data/samples.json").then(function(data) {
   
 //     sample_new = data["samples"].filter(function(sample) {
   
@@ -199,7 +199,7 @@ init();
 
 
 // function createDropDown () {
-//     d3.json('../data/samples.json').then((data) => {
+//     d3.json('data/samples.json').then((data) => {
 //         console.log(data)
     
 
@@ -462,7 +462,7 @@ init();
   
 //   var optionChanged = function(newValue) {
   
-//     d3.json("../data/samples.json").then(function(data) {
+//     d3.json("data/samples.json").then(function(data) {
   
 //     sample_new = data["samples"].filter(function(sample) {
   
@@ -489,7 +489,7 @@ init();
 //     });
 //   };
   
-//   d3.json("../data/samples.json").then(function(data) {
+//   d3.json("data/samples.json").then(function(data) {
   
 //     //Populate dropdown with names
 //     populateDropdown(data["names"]);
@@ -553,7 +553,7 @@ init();
 // };
 
 // function getData(id){
-//     d3.json('../data/samples.json').then((data) => {
+//     d3.json('data/samples.json').then((data) => {
 //         console.log(data);
         // var subjectID = data.names
         // console.log(subjectID)
@@ -565,7 +565,7 @@ init();
 // function getData(){
 //     console.log('This is not working')
 
-//     d3.json('../data/samples.json').then((data) => {
+//     d3.json('data/samples.json').then((data) => {
 //         // use the map function to pull the info from the metadata
 //         console.log('IS THIS WORKING')
 //         var subjectID = data.metadata.map(row => row[0]);
